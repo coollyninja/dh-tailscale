@@ -281,7 +281,7 @@ wheels = [
 [[package]]
 name = "deckhand-control-plane"
 version = "0.5.0"
-source = { git = "https://github.com/coollyninja/deckhand.git?rev=cc74f66216aa2ac9070f8a4a1353c552f7381cfc#cc74f66216aa2ac9070f8a4a1353c552f7381cfc" }
+source = { git = "https://github.com/coollyninja/deckhand.git?rev=126939dbdab925696cb4aa9e125332fcb45b32aa#126939dbdab925696cb4aa9e125332fcb45b32aa" }
 dependencies = [
     { name = "cryptography" },
     { name = "fastapi" },
@@ -316,7 +316,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "deckhand-control-plane", git = "https://github.com/coollyninja/deckhand.git?rev=cc74f66216aa2ac9070f8a4a1353c552f7381cfc" },
+    { name = "deckhand-control-plane", git = "https://github.com/coollyninja/deckhand.git?rev=126939dbdab925696cb4aa9e125332fcb45b32aa" },
     { name = "httpx", specifier = ">=0.28,<1" },
     { name = "pydantic", specifier = ">=2.11,<3" },
 ]
