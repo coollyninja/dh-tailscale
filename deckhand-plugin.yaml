@@ -1,0 +1,136 @@
+schema_version: 1
+id: dh-tailscale
+name: Tailscale
+version: 0.1.0
+api_version: 1
+description: Read-only fleet health observation through logical checks.
+adapters:
+  - dh-tailscale.read
+status_provider_types:
+  - tailscale-check
+actions:
+  - tailscale.check.observe
+permissions:
+  mutation: false
+  credential_slots:
+    - tailscale.oauth_client_id
+    - tailscale.oauth_client_secret
+    - tailscale.tls_ca
+  egress_bindings:
+    - tailscale_api
+config_schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  additionalProperties: false
+  required:
+    - oauth_client_id_file
+    - oauth_client_secret_file
+    - checks
+  properties:
+    oauth_client_id_file:
+      type: string
+      pattern: ^/
+    oauth_client_secret_file:
+      type: string
+      pattern: ^/
+    ca_file:
+      type: [string, "null"]
+      pattern: ^/
+    timeout_seconds:
+      type: number
+      exclusiveMinimum: 0
+      maximum: 30
+      default: 5
+    checks:
+      type: object
+      minProperties: 1
+      maxProperties: 128
+      propertyNames:
+        pattern: ^[a-z][a-z0-9_]{0,63}$
+      additionalProperties:
+        type: object
+        additionalProperties: false
+        required:
+          - kind
+        properties:
+          kind:
+            enum: [fleet, stale, key_expiry]
+          maximum_offline:
+            type: integer
+            minimum: 0
+            maximum: 100000
+          maximum_unauthorized:
+            type: integer
+            minimum: 0
+            maximum: 100000
+          maximum_expired:
+            type: integer
+            minimum: 0
+            maximum: 100000
+          maximum_age_seconds:
+            type: integer
+            minimum: 60
+            maximum: 31536000
+          maximum_stale:
+            type: integer
+            minimum: 0
+            maximum: 100000
+          window_days:
+            type: integer
+            minimum: 1
+            maximum: 365
+          maximum_expiring:
+            type: integer
+            minimum: 0
+            maximum: 100000
+          stale_after_seconds:
+            type: integer
+            minimum: 1
+            maximum: 3600
+            default: 60
+        allOf:
+          - if:
+              properties:
+                kind:
+                  const: fleet
+            then:
+              required:
+                - maximum_offline
+                - maximum_unauthorized
+                - maximum_expired
+              not:
+                anyOf:
+                  - required: [maximum_age_seconds]
+                  - required: [maximum_stale]
+                  - required: [window_days]
+                  - required: [maximum_expiring]
+          - if:
+              properties:
+                kind:
+                  const: stale
+            then:
+              required:
+                - maximum_age_seconds
+                - maximum_stale
+              not:
+                anyOf:
+                  - required: [maximum_offline]
+                  - required: [maximum_unauthorized]
+                  - required: [maximum_expired]
+                  - required: [window_days]
+                  - required: [maximum_expiring]
+          - if:
+              properties:
+                kind:
+                  const: key_expiry
+            then:
+              required:
+                - window_days
+                - maximum_expiring
+              not:
+                anyOf:
+                  - required: [maximum_offline]
+                  - required: [maximum_unauthorized]
+                  - required: [maximum_expired]
+                  - required: [maximum_age_seconds]
+                  - required: [maximum_stale]
